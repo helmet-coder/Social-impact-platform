@@ -1,0 +1,38 @@
+<!-- templates/start_campaign.html -->
+{% extends "base.html" %}
+{% block title %}Start a Campaign{% endblock %}
+{% block content %}
+<h1>🚀 Start a New Campaign</h1>
+<p>Fill out the form below to create a campaign that inspires action.</p>
+
+<form method="POST">
+  <label>Title:</label>
+  <input type="text" name="title" required>
+
+  <label>Description:</label>
+  <textarea name="description" required></textarea>
+
+  <label>Location (e.g., Brisbane):</label>
+  <input type="text" name="location">
+
+  <label>Level:</label>
+  <select name="level" required>
+    <option value="local">Local</option>
+    <option value="national">National</option>
+    <option value="global">Global</option>
+  </select>
+
+  <label>Category:</label>
+  <select name="category" required>
+    <option value="repair">Repair</option>
+    <option value="sustainability">Sustainability</option>
+    <option value="privacy">Privacy</option>
+    <option value="health">Health</option>
+    <option value="education">Education</option>
+    <option value="animal_rights">Animal Rights</option>
+    <option value="politics">Politics</option>
+  </select>
+
+  <button type="submit">Create Campaign</button>
+</form>
+{% endblock %}

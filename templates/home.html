@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Home – BrisbaneEthicaction{% endblock %}
+
+{% block content %}
+<div class="hero">
+  <h1>Welcome to BrisbaneEthicaction 🌿</h1>
+  <p>Your platform to learn about systemic issues and take meaningful, ethical action.</p>
+</div>
+
+<div class="features">
+  <div class="feature-card">
+    <h3>📖 Learn the Issues</h3>
+    <p>Explore topics like Digital Privacy, Right to Repair, Fast Fashion, and more.</p>
+    <a href="/privacy">Browse Explainers →</a>
+  </div>
+  <div class="feature-card">
+    <h3>🔁 Ethical Switchboard</h3>
+    <p>Find ethical alternatives to common tools and apps. Add your own switches.</p>
+    <a href="/privacy">Start Switching →</a>
+  </div>
+  <div class="feature-card">
+    <h3>🙌 Join or Start Campaigns</h3>
+    <p>Take real-world or digital action. Organize and support local efforts.</p>
+    <a href="/campaigns">See Campaigns →</a>
+  </div>
+</div>
+
+<style>
+  .hero {
+    text-align: center;
+    padding: 3rem 1rem;
+    background: linear-gradient(120deg, #e8f5e9 0%, #f5f7fa 100%);
+    border-radius: 12px;
+    margin-bottom: 2rem;
+  }
+  .features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: center;
+  }
+  .feature-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    max-width: 300px;
+    text-align: center;
+  }
+  .feature-card h3 {
+    color: #388e3c;
+  }
+  .feature-card a {
+    display: inline-block;
+    margin-top: 0.75rem;
+    color: #00796b;
+    font-weight: bold;
+    text-decoration: none;
+  }
+</style>
+{% endblock %}

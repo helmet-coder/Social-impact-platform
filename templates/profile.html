@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Profile – BrisbaneEthicaction{% endblock %}
+{% block content %}
+<h2>Welcome, {{ name }}!</h2>
+<p>This is your profile page.</p>
+
+<h3>Your Contributions:</h3>
+<ul>
+  {% for s in switches %}
+    <li><strong>{{ s[1] }}</strong> — {{ s[2] }} → <em>{{ s[3] }}</em></li>
+  {% else %}
+    <li>You haven’t added any switches yet.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

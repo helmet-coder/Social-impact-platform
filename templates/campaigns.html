@@ -1,0 +1,46 @@
+<!-- templates/campaigns.html -->
+{% extends "base.html" %}
+{% block title %}Campaigns{% endblock %}
+{% block content %}
+<h1>📢 Explore Campaigns</h1>
+<form method="GET" style="margin-bottom: 1em;">
+  <label>Filter by Level:</label>
+  <select name="level">
+    <option value="">All</option>
+    <option value="local">Local</option>
+    <option value="national">National</option>
+    <option value="global">Global</option>
+  </select>
+
+  <label>Category:</label>
+  <select name="category">
+    <option value="">All</option>
+    <option value="repair">Repair</option>
+    <option value="sustainability">Sustainability</option>
+    <option value="privacy">Privacy</option>
+    <option value="health">Health</option>
+    <option value="education">Education</option>
+    <option value="animal_rights">Animal Rights</option>
+    <option value="politics">Politics</option>
+  </select>
+  <button type="submit">Apply</button>
+</form>
+
+{% for c in campaigns %}
+<div class="card">
+  <h2>{{ c[1] }}</h2>
+  <p>{{ c[2] }}</p>
+  <p><strong>Location:</strong> {{ c[3] }} | <strong>Level:</strong> {{ c[4] }} | <strong>Category:</strong> {{ c[5] }}
+  </p>
+  <p><strong>Created by:</strong> {{ c[6] }}</p>
+  <form method="POST" action="/join-campaign">
+    <input type="hidden" name="campaign_id" value="{{ c[0] }}">
+    <label><input type="checkbox" name="wants_volunteer"> I want to volunteer</label>
+    <label><input type="checkbox" name="show_publicly"> Show my name/profile</label><br>
+    <button type="submit">Join Campaign</button>
+  </form>
+</div>
+{% else %}
+<p>No campaigns found.</p>
+{% endfor %}
+{% endblock %}
