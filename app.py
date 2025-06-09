@@ -32,7 +32,6 @@ def register():
     return render_template('register.html')
 
 # --- Login Route ---
-# --- Login Route ---
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -55,13 +54,12 @@ def login():
 
     return render_template('login.html')
 
-# --- Logout Route ---@app.route('/logout')
+# --- Logout Route ---
 @app.route('/logout')
 def logout():
     session.clear()
     flash("Logged out.", "info")
     return redirect(url_for('homepage'))
-
 
 # --- Function to initialize the database ---
 def init_db():
@@ -166,7 +164,6 @@ def campaigns():
 
     return render_template('campaigns.html', campaigns=campaigns)
 
-# --- Route: Join Campaign ---
 @app.route('/join-campaign', methods=['POST'])
 def join_campaign():
     if 'user_id' not in session:
@@ -180,11 +177,18 @@ def join_campaign():
 
     conn = sqlite3.connect('switchboard.db')
     c = conn.cursor()
-    c.execute('INSERT INTO campaign_joins (campaign_id, user_id, wants_volunteer, show_publicly) VALUES (?, ?, ?, ?)',
-              (campaign_id, user_id, wants_volunteer, show_publicly))
-    conn.commit()
+
+    # Prevent duplicate join
+    c.execute('SELECT id FROM campaign_joins WHERE campaign_id=? AND user_id=?',
+              (campaign_id, user_id))
+    if c.fetchone():
+        flash("You've already joined this campaign!", "info")
+    else:
+        c.execute('INSERT INTO campaign_joins (campaign_id, user_id, wants_volunteer, show_publicly) VALUES (?, ?, ?, ?)',
+                  (campaign_id, user_id, wants_volunteer, show_publicly))
+        conn.commit()
+        flash("Thanks for joining!", "success")
     conn.close()
-    flash("Thanks for joining!", "success")
     return redirect(url_for('campaigns'))
 
 # --- Route: Export Supporters (for creator only) ---
@@ -222,26 +226,66 @@ def export_supporters(campaign_id):
                      download_name='supporters.csv',
                      as_attachment=True)
 
-# --- Page Templates ---
+# --- Add Switch Entry ---
+@app.route('/add', methods=['POST'])
+def add_switch():
+    app_name = request.form['app_name']
+    reason = request.form['reason']
+    alternative = request.form['alternative']
+    link = request.form['link']
+
+    conn = sqlite3.connect('switchboard.db')
+    c = conn.cursor()
+    c.execute('INSERT INTO switches (app_name, reason, alternative, link, proof_image) VALUES (?, ?, ?, ?, ?)',
+              (app_name, reason, alternative, link, ""))
+    conn.commit()
+    conn.close()
+    flash("Switch added!", "success")
+    return redirect(url_for('privacy'))
+
+# --- Informational Pages ---
 @app.route('/privacy')
 def privacy():
-    return render_template('privacy.html')
+    conn = sqlite3.connect('switchboard.db')
+    c = conn.cursor()
+    c.execute('SELECT * FROM switches')
+    switches = c.fetchall()
+    conn.close()
+    return render_template('privacy.html', switches=switches)
 
 @app.route('/repair')
 def repair():
     return render_template('repair.html')
 
-# @app.route('/login')
-# def login():
-#     return render_template('login.html')
-
-# @app.route('/register')
-# def register():
-#     return render_template('register.html')
-
 @app.route('/profile')
 def profile():
-    return render_template('profile.html')
+    if 'user_id' not in session:
+        flash("Login required", "error")
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    conn = sqlite3.connect('switchboard.db')
+    c = conn.cursor()
+
+    # Joined Campaigns
+    c.execute('''SELECT c.title, c.location, c.category
+                 FROM campaigns c
+                 JOIN campaign_joins cj ON c.id = cj.campaign_id
+                 WHERE cj.user_id = ?''', (user_id,))
+    joined_campaigns = c.fetchall()
+
+    # Submitted Switches
+    c.execute('''SELECT app_name, alternative
+                 FROM switches
+                 WHERE proof_image = "" AND id IN (
+                     SELECT MAX(id) FROM switches GROUP BY app_name
+                 )''')
+    switches = c.fetchall()
+
+    conn.close()
+    return render_template('profile.html',
+                           joined_campaigns=joined_campaigns,
+                           switches=switches)
 
 # --- Context processor ---
 @app.context_processor
@@ -251,4 +295,3 @@ def inject_user():
 if __name__ == '__main__':
     init_db()
     app.run(debug=True)
-
