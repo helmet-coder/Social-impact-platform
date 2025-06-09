@@ -1,10 +1,17 @@
 {% extends "base.html" %}
-{% block title %}Home – BrisbaneEthicaction{% endblock %}
+{% block title %}Home – BrisbaneEthication{% endblock %}
 
 {% block content %}
+
 <div class="hero">
-  <h1>Welcome to BrisbaneEthicaction 🌿</h1>
-  <p>Your platform to learn about systemic issues and take meaningful, ethical action.</p>
+  <h1>🌍 Empower Change, Ethically.</h1>
+  <p>BrisbaneEthicaction is your community platform to explore systemic issues and take real action — online and in the
+    real world.</p>
+  <p>
+    Learn about hidden harms like digital surveillance, fast fashion, e-waste, and corporate greenwashing.
+    Then take the next step: switch to ethical tools, support alternative products, or join people-powered campaigns.
+  </p>
+  <p><strong>Start exploring. Start organizing. Start making change.</strong></p>
 </div>
 
 <div class="features">
@@ -21,9 +28,11 @@
   <div class="feature-card">
     <h3>🙌 Join or Start Campaigns</h3>
     <p>Take real-world or digital action. Organize and support local efforts.</p>
-    <a href="/campaigns">See Campaigns →</a>
+    <a href="/campaigns">Explore Campaigns →</a>
   </div>
 </div>
+<p><strong>Ready to be part of the solution?</strong> <a href="/register">Create an account</a> or <a
+    href="/campaigns">join a campaign</a> today.</p>
 
 <style>
   .hero {
@@ -33,23 +42,27 @@
     border-radius: 12px;
     margin-bottom: 2rem;
   }
+
   .features {
     display: flex;
     flex-wrap: wrap;
     gap: 1.5rem;
     justify-content: center;
   }
+
   .feature-card {
     background: white;
     padding: 1.5rem;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     max-width: 300px;
     text-align: center;
   }
+
   .feature-card h3 {
     color: #388e3c;
   }
+
   .feature-card a {
     display: inline-block;
     margin-top: 0.75rem;

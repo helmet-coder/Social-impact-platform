@@ -1,0 +1,132 @@
+### 🗓 Sprint Week: [Dates]
+
+**🎯 This Week's Focus**:
+- [ ] Goal 1
+- [ ] Goal 2
+- [ ] Goal 3
+
+**📦 Deliverables**:
+- Feature/bugfix expected
+
+**🧪 Testing Plan**:
+- Ask 2 friends to try “Start Campaign”
+- Record feedback on login experience
+
+**🔁 Next Week Improvements**:
+- Tweak filter UX
+- Add simple analytics (views or joins)
+
+
+# 📋 BrisbaneEthicaction – MVP Project Plan
+
+## 🎯 Vision Statement
+
+Create a platform that enables users to understand ethical issues (like digital privacy, sustainability, and corporate accountability) and take real action through campaigns, ethical switches, and community tools.
+
+---
+
+## ✅ MVP Checklist
+
+### 🧠 Core Features
+
+* [x] User authentication (register/login/logout)
+* [x] Campaign creation
+* [x] Campaign filtering (by level & category)
+* [x] Join campaign + volunteer interest
+* [x] Digital privacy switchboard
+* [x] Flash messages for feedback
+
+### 🌐 Frontend Pages
+
+* [x] Homepage (basic structure + mission)
+* [x] Privacy page (switchboard)
+* [x] Campaigns list
+* [x] Start a campaign
+* [x] Repair page
+* [x] Register/login
+* [x] Profile (basic)
+* [ ] About (in progress)
+
+### 📦 Backend
+
+* [x] Flask setup
+* [x] SQLite integration
+* [x] Database models (users, campaigns, joins, switches)
+* [x] Add switch/save
+* [x] Export campaign supporters (CSV)
+
+---
+
+## ⏳ Sprint: Week of June 10–16
+
+### 🎯 Goals
+
+* [ ] Add campaign filtering by **location**
+* [ ] Fix mobile nav responsiveness
+* [ ] Add profile page view (joined campaigns + switches)
+* [ ] Improve homepage layout (hero, explainer, CTA)
+
+### 🧪 Testing Plan
+
+* Ask 2–3 friends to test: register → start/join campaign → logout
+* Collect feedback on UX clarity and design feel
+
+---
+
+## 📋 Backlog
+
+* [ ] Implement image upload for proof
+* [ ] Add GPS tagging for campaigns
+* [ ] Social sharing buttons
+* [ ] Email notifications (later)
+* [ ] Admin dashboard (for managing campaigns)
+* [ ] API for campaign submissions
+* [ ] Convert to PostgreSQL (future scale)
+
+---
+
+## 🚀 Launch Prep (July Target)
+
+* [ ] All forms tested on desktop + mobile
+* [ ] Domain + basic hosting (e.g. Railway, Render, Fly.io)
+* [ ] “Why Ethicaction?” explainer content
+* [ ] Add 3 real example campaigns
+* [ ] Invite 10 pilot users to join + test
+
+---
+
+## 💬 Notes
+
+* Planka login issue temporarily skipped, markdown used for planning
+* GitHub repo up-to-date
+* Focus now: design + bug-free usability
+
+---
+
+## 📁 File Structure (Quick Ref)
+
+```bash
+/templates
+  home.html
+  privacy.html
+  campaigns.html
+  register.html
+  login.html
+  profile.html
+/static
+  style.css
+app.py
+switchboard.db
+```
+
+---
+
+## ✏️ Next Planning Date: June 10
+
+---
+
+Let’s stay agile and focused.
+
+* Do small things that ship
+* Get early feedback
+* Improve based on real usage

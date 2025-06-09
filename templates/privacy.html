@@ -1,8 +1,28 @@
-<!-- templates/privacy.html -->
 {% extends "base.html" %}
 {% block title %}Digital Privacy – BrisbaneEthicaction{% endblock %}
+
 {% block content %}
 <h1>🔐 Digital Privacy</h1>
 <p>Learn why your data matters and how to switch to safer, ethical tools.</p>
-{% endblock %}
 
+{% for s in switches %}
+  <div class="card">
+    <p><strong>Tool:</strong> {{ s[1] }}</p>
+    <p><strong>Problem:</strong> {{ s[2] }}</p>
+    <p><strong>Alternative:</strong> <a href="{{ s[4] }}" target="_blank">{{ s[3] }}</a></p>
+  </div>
+{% endfor %}
+
+<h3>Add a New Entry</h3>
+<form action="/add" method="post">
+  <label>Tool Name:</label><br>
+  <input name="app_name" required><br>
+  <label>Why It's Unethical:</label><br>
+  <input name="reason" required><br>
+  <label>Ethical Alternative:</label><br>
+  <input name="alternative" required><br>
+  <label>Link to Alternative:</label><br>
+  <input name="link" type="url"><br><br>
+  <button type="submit">Add Switch</button>
+</form>
+{% endblock %}

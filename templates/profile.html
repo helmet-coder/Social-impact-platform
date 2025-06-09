@@ -1,15 +1,41 @@
-{% extends 'base.html' %}
-{% block title %}Profile – BrisbaneEthicaction{% endblock %}
-{% block content %}
-<h2>Welcome, {{ name }}!</h2>
-<p>This is your profile page.</p>
+{% extends "base.html" %}
+{% block title %}Your Profile{% endblock %}
 
-<h3>Your Contributions:</h3>
-<ul>
-  {% for s in switches %}
-    <li><strong>{{ s[1] }}</strong> — {{ s[2] }} → <em>{{ s[3] }}</em></li>
+{% block content %}
+<h1>👤 Your Profile</h1>
+
+<!-- Joined Campaigns -->
+<section>
+  <h2>📢 Joined Campaigns</h2>
+  {% if joined_campaigns %}
+    {% for title, location, category in joined_campaigns %}
+      <div class="card">
+        <p><strong>Campaign:</strong> {{ title }}</p>
+        <p><strong>Location:</strong> {{ location }}</p>
+        <p><strong>Category:</strong> {{ category }}</p>
+      </div>
+    {% endfor %}
   {% else %}
-    <li>You haven’t added any switches yet.</li>
-  {% endfor %}
-</ul>
+    <div class="card">
+      <p>You haven’t joined any campaigns yet. Explore and support causes you care about!</p>
+    </div>
+  {% endif %}
+</section>
+
+<!-- Submitted Switches -->
+<section>
+  <h2>🔄 Ethical Switches</h2>
+  {% if switches %}
+    {% for app_name, alternative in switches %}
+      <div class="card">
+        <p><strong>App Replaced:</strong> {{ app_name }}</p>
+        <p><strong>Ethical Alternative:</strong> {{ alternative }}</p>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="card">
+      <p>You haven’t submitted any switches yet. Recommend an ethical tech alternative!</p>
+    </div>
+  {% endif %}
+</section>
 {% endblock %}
