@@ -1,9 +1,24 @@
-.env
-*.sqlite3
+# Python
 __pycache__/
-instance/
 *.pyc
 *.pyo
 *.pyd
-*.log
+*.pyc
+
+# Environments
+.env
+venv/
+env/
+
+# Flask instance data
+instance/
+*.db
+switchboard.db
+instance/app.db
+
+# Uploaded media
 static/uploads/
+
+# OS
+.DS_Store
+Thumbs.db

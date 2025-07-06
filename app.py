@@ -11,6 +11,9 @@ from dotenv import load_dotenv
 # ✅ Load environment variables from .env
 load_dotenv()
 
+DATABASE_PATH = os.getenv('DATABASE_PATH', 'switchboard.db')  # fallback for dev
+
+
 # ✅ Flask app initialization
 app = Flask(__name__)
 
@@ -37,7 +40,7 @@ def register():
         hashed_pw = generate_password_hash(password)
 
         try:
-            conn = sqlite3.connect('switchboard.db')
+            sqlite3.connect(DATABASE_PATH)
             c = conn.cursor()
             c.execute("INSERT INTO users (name, email, password) VALUES (?, ?, ?)", (name, email, hashed_pw))
             conn.commit()
@@ -56,7 +59,7 @@ def login():
         email = request.form['email']
         password = request.form['password']
 
-        conn = sqlite3.connect('switchboard.db')
+        sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
         c.execute("SELECT id, name, password FROM users WHERE email = ?", (email,))
         user = c.fetchone()
@@ -81,7 +84,7 @@ def logout():
 
 # --- Function to initialize the database ---
 def init_db():
-    conn = sqlite3.connect('switchboard.db')
+    sqlite3.connect(DATABASE_PATH)
     c = conn.cursor()
 
     # Create tables
@@ -136,7 +139,7 @@ def homepage():
 
 @app.route('/campaigns')
 def campaigns():
-    conn = sqlite3.connect('switchboard.db')
+    sqlite3.connect(DATABASE_PATH)
     c = conn.cursor()
 
     level = request.args.get('level')
@@ -229,7 +232,7 @@ def create_campaign():
                 image_path = os.path.join("uploads", filename).replace("\\", "/")
   # Store relative path, e.g. 'static/uploads/filename.jpg'
 
-        conn = sqlite3.connect('switchboard.db')
+        sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
         c.execute('''INSERT INTO campaigns 
                      (title, description, location, level, category, user_id, latitude, longitude, map_link, image_path)
@@ -255,7 +258,7 @@ def join_campaign():
     show_publicly = 1 if 'show_publicly' in request.form else 0
 
     try:
-        conn = sqlite3.connect('switchboard.db')
+        sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
 
         # Try insert directly, let UNIQUE constraint handle duplication
@@ -283,7 +286,7 @@ def export_supporters(campaign_id):
         flash("Login required.", "error")
         return redirect(url_for('login'))
 
-    conn = sqlite3.connect('switchboard.db')
+    sqlite3.connect(DATABASE_PATH)
     c = conn.cursor()
     c.execute('SELECT user_id FROM campaigns WHERE id = ?', (campaign_id,))
     owner = c.fetchone()
@@ -319,7 +322,7 @@ def add_switch():
     alternative = request.form['alternative']
     link = request.form['link']
 
-    conn = sqlite3.connect('switchboard.db')
+    sqlite3.connect(DATABASE_PATH)
     c = conn.cursor()
     c.execute('INSERT INTO switches (app_name, reason, alternative, link, proof_image) VALUES (?, ?, ?, ?, ?)',
               (app_name, reason, alternative, link, ""))
@@ -331,7 +334,7 @@ def add_switch():
 # --- Informational Pages ---
 @app.route('/privacy')
 def privacy():
-    conn = sqlite3.connect('switchboard.db')
+    sqlite3.connect(DATABASE_PATH)
     c = conn.cursor()
     c.execute('SELECT * FROM switches')
     switches = c.fetchall()
@@ -349,7 +352,7 @@ def profile():
         return redirect(url_for('login'))
 
     user_id = session['user_id']
-    conn = sqlite3.connect('switchboard.db')
+    sqlite3.connect(DATABASE_PATH)
     c = conn.cursor()
 
     # Joined Campaigns
