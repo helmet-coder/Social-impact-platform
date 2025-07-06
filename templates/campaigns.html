@@ -1,46 +1,120 @@
-<!-- templates/campaigns.html -->
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
 {% block title %}Campaigns{% endblock %}
+
 {% block content %}
-<h1>📢 Explore Campaigns</h1>
-<form method="GET" style="margin-bottom: 1em;">
-  <label>Filter by Level:</label>
-  <select name="level">
+<h1>All Campaigns</h1>
+
+<!-- Filter Form -->
+<form id="filter-form" method="get" style="margin-bottom: 20px;">
+  <label for="level">Level:</label>
+  <select name="level" id="level">
     <option value="">All</option>
-    <option value="local">Local</option>
-    <option value="national">National</option>
-    <option value="global">Global</option>
+    <option value="Local">Local</option>
+    <option value="State">State</option>
+    <option value="National">National</option>
   </select>
 
-  <label>Category:</label>
-  <select name="category">
+  <label for="category">Category:</label>
+  <select name="category" id="category">
     <option value="">All</option>
-    <option value="repair">Repair</option>
-    <option value="sustainability">Sustainability</option>
-    <option value="privacy">Privacy</option>
-    <option value="health">Health</option>
-    <option value="education">Education</option>
-    <option value="animal_rights">Animal Rights</option>
-    <option value="politics">Politics</option>
+    <option value="Environment">Environment</option>
+    <option value="Education">Education</option>
+    <option value="Health">Health</option>
+    <option value="Social">Social</option>
   </select>
+
   <button type="submit">Apply</button>
 </form>
 
-{% for c in campaigns %}
-<div class="card">
-  <h2>{{ c[1] }}</h2>
-  <p>{{ c[2] }}</p>
-  <p><strong>Location:</strong> {{ c[3] }} | <strong>Level:</strong> {{ c[4] }} | <strong>Category:</strong> {{ c[5] }}
-  </p>
-  <p><strong>Created by:</strong> {{ c[6] }}</p>
-  <form method="POST" action="/join-campaign">
-    <input type="hidden" name="campaign_id" value="{{ c[0] }}">
-    <label><input type="checkbox" name="wants_volunteer"> I want to volunteer</label>
-    <label><input type="checkbox" name="show_publicly"> Show my name/profile</label><br>
-    <button type="submit">Join Campaign</button>
-  </form>
+<div class="content">
+  <h2>Active Campaigns</h2>
+
+  {% if campaigns %}
+  {% for campaign in campaigns %}
+  <div class="card">
+    <h2>{{ campaign.title }}</h2>
+    {% if campaign.image_path %}
+    <img src="{{ url_for('static', filename=campaign.image_path) }}" alt="{{ campaign.title }}">
+    {% endif %}
+
+
+    <p>{{ campaign.description }}</p>
+    <p><strong>Location:</strong> {{ campaign.location }}</p>
+    <div id="map-{{ campaign.id }}" style="height: 300px;"></div>
+
+    <script>
+      const map{{ campaign.id }} = L.map('map-{{ campaign.id }}').setView([{{ campaign.latitude }}, {{ campaign.longitude }}], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map{{ campaign.id }});
+      L.marker([{{ campaign.latitude }}, {{ campaign.longitude }}]).addTo(map{{ campaign.id }});
+    </script>
+
+    <p><strong>Creator:</strong> {{ campaign.creator }}</p>
+    <p><strong>Supporters Joined:</strong> {{ campaign.join_count }}</p>
+
+    {% if campaign.public_joiners %}
+    <p><strong>Public Supporters:</strong></p>
+    <ul>
+      {% for supporter in campaign.public_joiners %}
+      <li>{{ supporter }}</li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>No public supporters yet.</p>
+    {% endif %}
+
+    {% if user_name %}
+    <form method="POST" action="{{ url_for('join_campaign') }}" onsubmit="return confirmJoin(event, {{ campaign.id }})">
+      <input type="hidden" name="campaign_id" value="{{ campaign.id }}">
+      <label>
+        <input type="checkbox" name="wants_volunteer"> I'm interested in volunteering
+      </label><br>
+      <label>
+        <input type="checkbox" name="show_publicly"> Show my name publicly
+      </label><br>
+      <button type="submit">Join Campaign</button>
+    </form>
+    <div id="join-msg-{{ campaign.id }}" style="color: green; display: none;">You’ve successfully joined this campaign!
+    </div>
+    {% else %}
+    <p><a href="{{ url_for('login') }}">Log in</a> to join this campaign.</p>
+    {% endif %}
+  </div>
+  {% endfor %}
+  {% else %}
+  <p>No campaigns available at the moment.</p>
+  {% endif %}
 </div>
-{% else %}
-<p>No campaigns found.</p>
-{% endfor %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+  function confirmJoin(event, campaignId) {
+    event.preventDefault();
+    const form = event.target;
+
+    fetch(form.action, {
+      method: 'POST',
+      body: new FormData(form)
+    })
+      .then(response => {
+        if (response.ok) {
+          document.getElementById('join-msg-' + campaignId).style.display = 'block';
+          form.style.display = 'none';
+        } else {
+          alert('Join failed.');
+        }
+      });
+
+    return false;
+  }
+
+  document.getElementById('level').value = "{{ request.args.get('level', '') }}";
+  document.getElementById('category').value = "{{ request.args.get('category', '') }}";
+</script>
 {% endblock %}

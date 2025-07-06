@@ -2,25 +2,22 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{% block title %}BrisbaneEthication{% endblock %}</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
-      background: linear-gradient(120deg, #e8f5e9 0%, #f5f7fa 100%);
+      background: #fafafa;
       color: #222;
       min-height: 100vh;
     }
 
-    p {
-      text-align: center;
-    }
-
     nav {
+      /* Keep your original green gradient */
       background: linear-gradient(90deg, #00bfae 0%, #43e97b 100%);
-      padding: 1.2rem 2rem;
+      padding: 1rem 2rem;
       color: white;
       display: flex;
       justify-content: space-between;
@@ -36,160 +33,22 @@
       letter-spacing: 2px;
       color: #fff;
       text-shadow: 0 2px 8px rgba(67, 233, 123, 0.10);
+      user-select: none;
     }
 
     nav a {
-      color: #fff;
+      color: white;
       text-decoration: none;
-      margin: 0 1.2rem;
+      margin-left: 1rem;
       font-weight: 500;
-      font-size: 1.08rem;
-      transition: color 0.2s, text-shadow 0.2s;
-      padding: 4px 0;
-      border-bottom: 2px solid transparent;
+      font-size: 1rem;
+      transition: opacity 0.2s ease;
     }
 
     nav a:hover {
-      color: #222;
-      border-bottom: 2px solid #fff;
-      text-shadow: 0 2px 8px rgba(67, 233, 123, 0.15);
+      opacity: 0.8;
     }
 
-    .content {
-      max-width: 960px;
-      margin: auto;
-      padding: 2rem;
-    }
-
-    h1 {
-      text-align: center;
-      color: #00796b;
-      margin-top: 32px;
-      font-size: 2.3rem;
-      letter-spacing: 1px;
-      font-weight: 700;
-    }
-
-    h2,
-    h3 {
-      color: #388e3c;
-      font-weight: 600;
-      margin-top: 1.5em;
-      margin-bottom: 0.5em;
-    }
-
-    .card {
-      background: #fff;
-      border-radius: 14px;
-      box-shadow: 0 4px 24px rgba(67, 160, 71, 0.08);
-      margin: 24px auto;
-      max-width: 600px;
-      padding: 24px 28px;
-      transition: box-shadow 0.2s, border-left 0.2s;
-      border-left: 6px solid #43a047;
-    }
-
-    .card:hover {
-      box-shadow: 0 8px 32px rgba(67, 160, 71, 0.16);
-      border-left: 6px solid #00796b;
-    }
-
-    .card p {
-      margin: 8px 0;
-      font-size: 1.08rem;
-      line-height: 1.6;
-    }
-
-    .card a {
-      color: #388e3c;
-      text-decoration: none;
-      font-weight: 500;
-      transition: color 0.2s;
-    }
-
-    .card a:hover {
-      text-decoration: underline;
-      color: #00796b;
-    }
-
-    form {
-      background: #fff;
-      border-radius: 14px;
-      box-shadow: 0 4px 24px rgba(67, 160, 71, 0.08);
-      max-width: 600px;
-      margin: 32px auto 48px auto;
-      padding: 28px 32px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    form label {
-      font-weight: 600;
-      margin-bottom: 4px;
-      color: #388e3c;
-    }
-
-    form input[type="text"],
-    form input[type="url"] {
-      padding: 10px;
-      border: 1px solid #b0bec5;
-      border-radius: 6px;
-      font-size: 1rem;
-      margin-bottom: 8px;
-      outline: none;
-      transition: border 0.2s;
-      background: #f5f7fa;
-    }
-
-    form input[type="text"]:focus,
-    form input[type="url"]:focus {
-      border: 1.5px solid #43a047;
-      background: #e8f5e9;
-    }
-
-    form button {
-      background: #00796b;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 12px 0;
-      font-size: 1.1rem;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: background 0.2s;
-      letter-spacing: 1px;
-    }
-
-    form button:hover {
-      background: #388e3c;
-    }
-
-    strong,
-    b {
-      color: #00796b;
-      font-weight: 700;
-    }
-
-    @media (max-width: 700px) {
-
-      .card,
-      form {
-        max-width: 96vw;
-        padding: 16px 8px;
-      }
-
-      h1 {
-        font-size: 2rem;
-      }
-
-      .content {
-        padding: 1rem;
-      }
-    }
-
-    /* Hide hamburger by default */
     .hamburger {
       display: none;
       font-size: 1.8rem;
@@ -199,18 +58,14 @@
       color: white;
     }
 
-    /* Desktop nav links layout */
     .nav-links {
       display: flex;
-      flex-wrap: wrap;
-      gap: 1.2rem;
+      align-items: center;
     }
 
-    /* Mobile styles */
     @media (max-width: 768px) {
       nav {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-wrap: wrap;
       }
 
       .hamburger {
@@ -218,84 +73,112 @@
       }
 
       .nav-links {
-        display: none;
-        flex-direction: column;
         width: 100%;
+        flex-direction: column;
+        display: none;
         margin-top: 1rem;
-        gap: 0.6rem;
+        gap: 0.8rem;
       }
 
       .nav-links.show {
         display: flex;
-        animation: fadeIn 0.3s ease-in-out;
       }
 
       .nav-links a {
-        padding: 8px 0;
-        background-color: rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(-10%);
-        }
-
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+        margin-left: 0;
       }
     }
 
     .content {
-      padding: 1rem 1rem 2rem 1rem;
-      max-width: 100vw;
+      max-width: 720px;
+      margin: 2rem auto;
+      padding: 0 1rem;
     }
 
     h1 {
-      font-size: 1.8rem;
-      margin-top: 24px;
-    }
-
-    h2,
-    h3 {
-      font-size: 1.1rem;
-      margin-top: 1.2em;
-      margin-bottom: 0.4em;
+      font-weight: 600;
+      color: #00796b;
+      /* darker green accent */
+      text-align: center;
+      margin-bottom: 2rem;
     }
 
     .card {
-      margin: 16px 1rem;
-      padding: 16px 20px;
-      max-width: 100%;
-      border-left-width: 4px;
-      border-radius: 12px;
-      box-shadow: 0 2px 12px rgba(67, 160, 71, 0.1);
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1.5rem;
+      padding: 1.5rem 1.8rem;
+      transition: box-shadow 0.25s ease;
     }
 
     .card:hover {
-      box-shadow: 0 6px 24px rgba(67, 160, 71, 0.12);
-      border-left-width: 4px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: #00796b;
+      /* consistent green accent */
+      margin-bottom: 0.6rem;
+    }
+
+    .card p {
+      margin: 0.3rem 0;
+      font-size: 1rem;
+      color: #444;
+      line-height: 1.4;
+    }
+
+    .card a {
+      color: #43a047;
+      /* medium green */
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+
+    .card a:hover {
+      color: #2e7d32;
+      /* darker green on hover */
+      text-decoration: underline;
     }
 
     form {
-      margin: 24px 1rem 32px 1rem;
-      padding: 20px 24px;
-      max-width: 100%;
-      border-radius: 12px;
+      margin-top: 1rem;
     }
 
-    form input[type="text"],
-    form input[type="url"] {
+    form label {
+      font-weight: 600;
       font-size: 0.95rem;
-      padding: 8px;
+      color: #388e3c;
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+
+    form input[type="checkbox"] {
+      margin-right: 6px;
+      vertical-align: middle;
     }
 
     form button {
-      padding: 10px 0;
+      margin-top: 12px;
+      background: #00796b;
+      border: none;
+      color: white;
+      padding: 10px 14px;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
       font-size: 1rem;
+      transition: background 0.3s ease;
+    }
+
+    form button:hover {
+      background: #004d40;
     }
   </style>
   <script>
@@ -305,6 +188,11 @@
     }
   </script>
 
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -332,9 +220,57 @@
       <a href="/about">About</a>
     </div>
   </nav>
+
   <div class="content">
-    {% block content %}{% endblock %}
+    {% block content %}
+    <div class="card">
+      <h2>{{ campaign.title }}</h2>
+      <p><strong>Description:</strong> {{ campaign.description }}</p>
+      <p><strong>Location:</strong> {{ campaign.location }}</p>
+      <p><strong>Level:</strong> {{ campaign.level }}</p>
+      <p><strong>Category:</strong> {{ campaign.category }}</p>
+
+      {% if campaign.map_link %}
+      <p><a href="{{ campaign.map_link }}" target="_blank" rel="noopener noreferrer">View Map</a></p>
+      {% endif %}
+
+      <p><strong>Creator:</strong> {{ campaign.creator }}</p>
+      <p><strong>Supporters Joined:</strong> {{ campaign.join_count }}</p>
+
+      {% if campaign.public_joiners %}
+      <p><strong>Public Supporters:</strong></p>
+      <ul>
+        {% for supporter in campaign.public_joiners %}
+        <li>{{ supporter }}</li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p>No public supporters yet.</p>
+      {% endif %}
+
+      {% if user_name %}
+      <form method="POST" action="{{ url_for('join_campaign') }}">
+        <label><input type="checkbox" name="wants_volunteer"> I'm interested in volunteering</label>
+        <label><input type="checkbox" name="show_publicly"> Show my name publicly</label>
+        <input type="hidden" name="campaign_id" value="{{ campaign.id }}">
+        <button type="submit">Join Campaign</button>
+      </form>
+      {% else %}
+      <p><a href="{{ url_for('login') }}">Log in</a> to join this campaign.</p>
+      {% endif %}
+    </div>
+    {% endblock %}
   </div>
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+  <ul class="flashes">
+    {% for message in messages %}
+    <li>{{ message }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% endwith %}
+
 </body>
 
 </html>

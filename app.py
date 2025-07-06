@@ -1,13 +1,31 @@
-# === BACKEND (app.py) ===
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_file
 import sqlite3
 import csv
 import io
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+import os
+from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
 
+# ✅ Load environment variables from .env
+load_dotenv()
+
+# ✅ Flask app initialization
 app = Flask(__name__)
-app.secret_key = 'super-secret-key'
+
+# ✅ Secure secret key (from environment)
+app.secret_key = os.getenv('SECRET_KEY', 'fallback-secret-key')  # Default fallback only for dev
+
+
+# ✅ Now, configure it
+UPLOAD_FOLDER = 'static/uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# ✅ Helper function to check file type
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # --- Register Route ---
 @app.route('/register', methods=['GET', 'POST'])
@@ -65,6 +83,8 @@ def logout():
 def init_db():
     conn = sqlite3.connect('switchboard.db')
     c = conn.cursor()
+
+    # Create tables
     c.execute('''CREATE TABLE IF NOT EXISTS switches (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     app_name TEXT,
@@ -81,69 +101,58 @@ def init_db():
                 )''')
     c.execute('''CREATE TABLE IF NOT EXISTS campaigns (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    title TEXT,
+                    title TEXT NOT NULL,
                     description TEXT,
                     location TEXT,
                     level TEXT,
                     category TEXT,
+                    latitude REAL,
+                    longitude REAL,
+                    map_link TEXT,
                     user_id INTEGER,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    image_path TEXT
                 )''')
-    c.execute('''CREATE TABLE IF NOT EXISTS campaign_joins (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    campaign_id INTEGER,
-                    user_id INTEGER,
-                    wants_volunteer INTEGER,
-                    show_publicly INTEGER,
-                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-                )''')
+    c.execute('''
+    CREATE TABLE IF NOT EXISTS campaign_joins (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        campaign_id INTEGER,
+        user_id INTEGER,
+        wants_volunteer INTEGER,
+        show_publicly INTEGER,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE (campaign_id, user_id)
+    )
+''')
+
     conn.commit()
     conn.close()
+
 
 # --- Route: Home ---
 @app.route('/')
 def homepage():
     return render_template('home.html')
 
-# --- Start a Campaign ---
-@app.route('/start-campaign', methods=['GET', 'POST'])
-def start_campaign():
-    if 'user_id' not in session:
-        flash("Login required.", "error")
-        return redirect(url_for('login'))
-
-    if request.method == 'POST':
-        title = request.form['title']
-        description = request.form['description']
-        location = request.form['location']
-        level = request.form['level']
-        category = request.form['category']
-        user_id = session['user_id']
-
-        conn = sqlite3.connect('switchboard.db')
-        c = conn.cursor()
-        c.execute('''INSERT INTO campaigns (title, description, location, level, category, user_id)
-                     VALUES (?, ?, ?, ?, ?, ?)''',
-                  (title, description, location, level, category, user_id))
-        conn.commit()
-        conn.close()
-
-        flash("Campaign created successfully!", "success")
-        return redirect(url_for('campaigns'))
-
-    return render_template('start_campaign.html')
-
-# --- View & Filter Campaigns ---
 @app.route('/campaigns')
 def campaigns():
     conn = sqlite3.connect('switchboard.db')
     c = conn.cursor()
 
-    # Get filter params
     level = request.args.get('level')
     category = request.args.get('category')
 
-    query = "SELECT c.id, c.title, c.description, c.location, c.level, c.category, u.name FROM campaigns c JOIN users u ON c.user_id = u.id"
+    query = '''
+    SELECT 
+    c.id, c.title, c.description, c.location, c.level, c.category, 
+    c.latitude, c.longitude, c.map_link,
+    u.name, c.user_id,  
+    (SELECT COUNT(*) FROM campaign_joins cj WHERE cj.campaign_id = c.id) as join_count,
+    c.image_path
+    FROM campaigns c 
+    JOIN users u ON c.user_id = u.id
+    '''
+
     filters = []
     values = []
 
@@ -159,10 +168,80 @@ def campaigns():
 
     query += " ORDER BY c.created_at DESC"
     c.execute(query, values)
-    campaigns = c.fetchall()
-    conn.close()
+    campaigns_data = c.fetchall()
 
+    campaigns = []
+    for campaign in campaigns_data:
+        campaign_id = campaign[0]
+        c.execute('''SELECT u.name FROM campaign_joins cj 
+                     JOIN users u ON cj.user_id = u.id
+                     WHERE cj.campaign_id = ? AND cj.show_publicly = 1''', (campaign_id,))
+        public_joiners = [row[0] for row in c.fetchall()]
+
+        # ✅ FIXED: This line must be inside the loop
+        campaigns.append({
+            'id': campaign[0],
+            'title': campaign[1],
+            'description': campaign[2],
+            'location': campaign[3],
+            'level': campaign[4],
+            'category': campaign[5],
+            'latitude': campaign[6],
+            'longitude': campaign[7],
+            'map_link': campaign[8],
+            'creator': campaign[9],
+            'creator_id': campaign[10],  # now defined
+            'join_count': campaign[11],
+            'image_path': campaign[12],
+            'public_joiners': public_joiners
+        })
+
+    conn.close()
     return render_template('campaigns.html', campaigns=campaigns)
+
+@app.route('/start-campaign', methods=['GET', 'POST'])
+@app.route('/create-campaign', methods=['GET', 'POST'])
+def create_campaign():
+    if 'user_id' not in session:
+        flash("Login required to start a campaign.", "error")
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        # Get form fields
+        title = request.form['title']
+        description = request.form['description']
+        location = request.form['location']
+        level = request.form['level']
+        category = request.form['category']
+        latitude = request.form.get('latitude')
+        longitude = request.form.get('longitude')
+        map_link = request.form.get('map_link')
+        user_id = session['user_id']
+
+        image_path = None
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(filepath)
+                image_path = os.path.join("uploads", filename).replace("\\", "/")
+  # Store relative path, e.g. 'static/uploads/filename.jpg'
+
+        conn = sqlite3.connect('switchboard.db')
+        c = conn.cursor()
+        c.execute('''INSERT INTO campaigns 
+                     (title, description, location, level, category, user_id, latitude, longitude, map_link, image_path)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''',
+                  (title, description, location, level, category, user_id, latitude, longitude, map_link, image_path))
+        conn.commit()
+        conn.close()
+
+        flash("Campaign created successfully!", "success")
+        return redirect(url_for('campaigns'))
+
+    return render_template('start_campaign.html')
 
 @app.route('/join-campaign', methods=['POST'])
 def join_campaign():
@@ -170,25 +249,31 @@ def join_campaign():
         flash("Please log in to join.", "error")
         return redirect(url_for('login'))
 
-    campaign_id = request.form['campaign_id']
+    campaign_id = request.form.get('campaign_id')
     user_id = session['user_id']
     wants_volunteer = 1 if 'wants_volunteer' in request.form else 0
     show_publicly = 1 if 'show_publicly' in request.form else 0
 
-    conn = sqlite3.connect('switchboard.db')
-    c = conn.cursor()
+    try:
+        conn = sqlite3.connect('switchboard.db')
+        c = conn.cursor()
 
-    # Prevent duplicate join
-    c.execute('SELECT id FROM campaign_joins WHERE campaign_id=? AND user_id=?',
-              (campaign_id, user_id))
-    if c.fetchone():
-        flash("You've already joined this campaign!", "info")
-    else:
-        c.execute('INSERT INTO campaign_joins (campaign_id, user_id, wants_volunteer, show_publicly) VALUES (?, ?, ?, ?)',
-                  (campaign_id, user_id, wants_volunteer, show_publicly))
+        # Try insert directly, let UNIQUE constraint handle duplication
+        c.execute('''
+            INSERT INTO campaign_joins (campaign_id, user_id, wants_volunteer, show_publicly)
+            VALUES (?, ?, ?, ?)
+        ''', (campaign_id, user_id, wants_volunteer, show_publicly))
+
         conn.commit()
         flash("Thanks for joining!", "success")
-    conn.close()
+
+    except sqlite3.IntegrityError:
+        # Triggered by UNIQUE constraint (user already joined)
+        flash("You've already joined this campaign!", "info")
+
+    finally:
+        conn.close()
+
     return redirect(url_for('campaigns'))
 
 # --- Route: Export Supporters (for creator only) ---
@@ -291,6 +376,7 @@ def profile():
 @app.context_processor
 def inject_user():
     return dict(user_name=session.get('user_name'))
+
 
 if __name__ == '__main__':
     init_db()

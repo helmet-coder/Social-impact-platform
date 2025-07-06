@@ -1,11 +1,11 @@
-<!-- templates/start_campaign.html -->
 {% extends "base.html" %}
 {% block title %}Start a Campaign{% endblock %}
 {% block content %}
+
 <h1>🚀 Start a New Campaign</h1>
 <p>Fill out the form below to create a campaign that inspires action.</p>
 
-<form method="POST">
+<form method="POST" enctype="multipart/form-data">
   <label>Title:</label>
   <input type="text" name="title" required>
 
@@ -13,7 +13,18 @@
   <textarea name="description" required></textarea>
 
   <label>Location (e.g., Brisbane):</label>
-  <input type="text" name="location">
+  <input type="text" name="location" required>
+
+  <label>Map Link (Google Maps / OpenStreetMap):</label>
+  <input type="url" id="map_link" name="map_link" placeholder="https://maps.google.com/..." required>
+
+  <label>Latitude:</label>
+  <input type="number" step="any" id="latitude" name="latitude" required>
+
+  <label>Longitude:</label>
+  <input type="number" step="any" id="longitude" name="longitude" required>
+
+  <div id="map" style="height: 300px; margin-top: 1rem;"></div>
 
   <label>Level:</label>
   <select name="level" required>
@@ -33,6 +44,55 @@
     <option value="politics">Politics</option>
   </select>
 
+  <label for="image">Campaign Image:</label>
+  <input type="file" name="image" id="image" accept="image/*">
+
   <button type="submit">Create Campaign</button>
 </form>
+
+<!-- Leaflet JS & CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+
+<script>
+  const map = L.map('map').setView([0, 0], 2); // Default view
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  const marker = L.marker([0, 0]).addTo(map);
+
+  function updateMap(lat, lon) {
+    const latNum = parseFloat(lat);
+    const lonNum = parseFloat(lon);
+    if (!isNaN(latNum) && !isNaN(lonNum)) {
+      marker.setLatLng([latNum, lonNum]);
+      map.setView([latNum, lonNum], 13);
+    }
+  }
+
+  function extractCoords(url) {
+    let match = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/); // Google Maps
+    if (!match) match = url.match(/#map=\d+\/(-?\d+\.\d+)\/(-?\d+\.\d+)/); // OSM
+    return match ? [match[1], match[2]] : [null, null];
+  }
+
+  document.getElementById('map_link').addEventListener('change', function () {
+    const [lat, lon] = extractCoords(this.value);
+    if (lat && lon) {
+      document.getElementById('latitude').value = lat;
+      document.getElementById('longitude').value = lon;
+      updateMap(lat, lon);
+    }
+  });
+
+  document.getElementById('latitude').addEventListener('change', () => {
+    updateMap(document.getElementById('latitude').value, document.getElementById('longitude').value);
+  });
+  document.getElementById('longitude').addEventListener('change', () => {
+    updateMap(document.getElementById('latitude').value, document.getElementById('longitude').value);
+  });
+</script>
+
 {% endblock %}
